@@ -2,6 +2,15 @@ import pytest
 from model import Question
 
 
+@pytest.fixture
+def question_with_choices():
+    q = Question(title="Capital do Brasil", max_selections=2)
+    q.add_choice("Rio de Janeiro")
+    q.add_choice("São Paulo")        
+    q.add_choice("Brasília")         
+    q.set_correct_choices([3])
+    return q
+
 def test_create_question():
     question = Question(title='q1')
     assert question.id != None
@@ -122,3 +131,14 @@ def test_correct_selected_choices_allows_multiple_when_configured():
     q.set_correct_choices([1, 3])
     result = q.correct_selected_choices([1, 3])
     assert result == [1, 3]
+    
+
+def test_fixture_question_has_expected_choices(question_with_choices):
+    texts = [c.text for c in question_with_choices.choices]
+    assert texts == ["Rio de Janeiro", "São Paulo", "Brasília"]
+    assert question_with_choices.points == 1
+
+
+def test_fixture_question_correct_answer(question_with_choices):
+    result = question_with_choices.correct_selected_choices([1, 3])
+    assert result == [3]
